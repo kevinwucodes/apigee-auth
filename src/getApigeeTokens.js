@@ -1,7 +1,7 @@
 const axios = require('axios')
 const querystring = require('querystring')
 
-const { oauthTokenUrl } = require('./config')
+const { oauthTokenUrl } = require('../config')
 
 const options = {
   method: 'POST',
