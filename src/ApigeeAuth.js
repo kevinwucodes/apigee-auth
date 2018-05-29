@@ -55,7 +55,6 @@ module.exports = class ApigeeAuth {
 
       //check every 500ms to see if we have a token
       const intervalId = setInterval(() => {
-        console.log('inside interval')
         if (this.__token) {
           clearInterval(intervalId)
           return resolve(this.__token)
