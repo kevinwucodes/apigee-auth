@@ -1,1 +1,1 @@
-module.exports = require('./src/ApigeeOauth')
+module.exports = require('./src/ApigeeAuth')

@@ -3,7 +3,7 @@ const {
   getTokenFromRefreshToken
 } = require('./getApigeeTokens')
 
-module.exports = class ApigeeOauth {
+module.exports = class ApigeeAuth {
   constructor(username, password) {
     this.__username = username
     this.__password = password
