@@ -11,8 +11,6 @@ module.exports = class ApigeeAuth {
     this.__accessTokenExpireIn = null
     this.__error = null
 
-    this.getToken = this.getToken.bind(this)
-
     this.init()
   }
 
