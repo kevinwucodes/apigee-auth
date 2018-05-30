@@ -9,6 +9,7 @@ module.exports = class ApigeeAuth {
     this.__password = password
     this.__token = null
     this.__accessTokenExpireIn = null
+    this.__timeoutId = null
     this.__error = null
 
     this.init()
@@ -35,7 +36,7 @@ module.exports = class ApigeeAuth {
     this.__accessTokenExpireIn = token.expires_in
     this.__error = null
 
-    setTimeout(async () => {
+    this.__timeoutId = setTimeout(async () => {
       await this.useRefreshToken(this.__token.refresh_token)
     }, this.__accessTokenExpireIn * 1000 * 0.8) //we refetch at 80% of the expiration time
   }
@@ -73,5 +74,14 @@ module.exports = class ApigeeAuth {
         }
       }, 10 * 1000)
     })
+  }
+
+  destroy() {
+    if (this.__timeoutId) {
+      clearTimeout(this.__timeoutId)
+      this.__timeoutId = null
+      return true
+    }
+    return false
   }
 }
