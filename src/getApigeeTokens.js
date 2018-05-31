@@ -13,8 +13,8 @@ const options = {
   }
 }
 
-const getTokenFromUsername = async (username, password) => {
-  return await axios(oauthTokenUrl, {
+const getTokenFromUsername = (username, password) =>
+  axios(oauthTokenUrl, {
     ...options,
     data: querystring.stringify({
       username,
@@ -22,16 +22,14 @@ const getTokenFromUsername = async (username, password) => {
       grant_type: 'password'
     })
   }).then(result => result.data)
-}
 
-const getTokenFromRefreshToken = async refresh_token => {
-  return axios(oauthTokenUrl, {
+const getTokenFromRefreshToken = refresh_token =>
+  axios(oauthTokenUrl, {
     ...options,
     data: querystring.stringify({
       refresh_token,
       grant_type: 'refresh_token'
     })
   }).then(result => result.data)
-}
 
 module.exports = { getTokenFromUsername, getTokenFromRefreshToken }

@@ -1,11 +1,6 @@
 # Apigee-Auth
 
-# **NOTE: this does not take into account of refresh tokens expiration so back to the drawing board!  Do not use this.**
-
-
-Apigee-Auth retrieves Apigee access tokens from a username/password. It automatically tries to utilize refresh tokens when the access token is nearing expiration so that we can always retrieve the latest and valid access token.
-
-Each apigee access token is valid for 1799 seconds (~30 minutes). Apigee-Auth handles the next access token retrieval using a refresh token when the expiration of the access token is at 80%. This is `1799 * 0.8 = 1439 seconds (~24 minutes)`
+Apigee-Auth retrieves [Apigee OAuth2 Access Tokens](https://docs.apigee.com/api-platform/system-administration/using-oauth2-security-apigee-edge-management-api) from a username/password. It automatically utilize refresh tokens when the current access token has expired so that we can always retrieve the next valid access token.
 
 # Basic Usage
 
@@ -16,10 +11,13 @@ const apigeeAuth = new ApigeeAuth('username', 'password')
 apigeeAuth.getToken().then(response => {
   console.log(response.access_token)
 })
-
-//destroy the instance when you're done
-apigeeAuth.destroy()
 ```
+
+# Reference
+
+`getToken()`
+
+* returns: Promise with the JSON output as specified by the [Apigee OAuth2 Access Tokens](https://docs.apigee.com/api-platform/system-administration/using-oauth2-security-apigee-edge-management-api) documentation for POSTing to https://login.apigee.com/oauth/token
 
 # Creating a reusable axios instance
 
@@ -41,14 +39,3 @@ client.interceptors.request.use(
   err => Promise.reject(err)
 )
 ```
-
-# Reference
-
-`getToken()`
-* returns: Promise with the JSON output as specified by the Apigee Documentation for POSTing to https://login.apigee.com/oauth/token
-
-
-`destroy()`
-* returns: Boolean
-
-Destroys the ApigeeAuth instance.

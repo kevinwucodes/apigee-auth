@@ -7,81 +7,52 @@ module.exports = class ApigeeAuth {
   constructor(username, password) {
     this.__username = username
     this.__password = password
+
     this.__token = null
-    this.__accessTokenExpireIn = null
-    this.__timeoutId = null
-    this.__error = null
 
-    this.init()
+    this.__accessTokenExpireAt = null
+    this.__refreshTokenExpireAt = null
+
+    this.getToken = this.getToken.bind(this)
   }
 
-  async init() {
-    await this.getAccessToken(this.__username, this.__password)
+  currentSeconds() {
+    return Math.floor(new Date().getTime() / 1000)
   }
 
-  async getAccessToken(username, password) {
-    return await getTokenFromUsername(username, password)
-      .then(data => this.setAccessToken(data))
-      .catch(err => this.setError(err))
+  useUsernamePassword(username, password) {
+    return getTokenFromUsername(username, password).then(data =>
+      this.setAccessToken(data)
+    )
   }
 
-  async useRefreshToken(refreshToken) {
-    return await getTokenFromRefreshToken(refreshToken)
-      .then(data => this.setAccessToken(data))
-      .catch(err => this.setError(err))
+  useRefreshToken(refreshToken) {
+    return getTokenFromRefreshToken(refreshToken).then(data =>
+      this.setAccessToken(data, true)
+    )
   }
 
-  setAccessToken(token) {
+  setAccessToken(token, isUsingRefreshToken) {
     this.__token = token
-    this.__accessTokenExpireIn = token.expires_in
-    this.__error = null
+    this.__accessTokenExpireAt = this.currentSeconds() + token.expires_in - 60 //buffer 60 seconds
 
-    this.__timeoutId = setTimeout(async () => {
-      await this.useRefreshToken(this.__token.refresh_token)
-    }, this.__accessTokenExpireIn * 1000 * 0.8) //we refetch at 80% of the expiration time
-  }
+    if (!isUsingRefreshToken) {
+      this.__refreshTokenExpireAt = this.currentSeconds() + 84600 - 60 //buffer 60 seconds
+    }
 
-  setError(err) {
-    this.__token = null
-    this.__accessTokenExpireIn = null
-    this.__error = err
+    return this.__token
   }
 
   getToken() {
-    return new Promise((resolve, reject) => {
-      if (this.__token) return resolve(this.__token)
-      if (this.__error) return reject(this.__error)
-
-      //check every 500ms to see if we have a token
-      const intervalId = setInterval(() => {
-        if (this.__token) {
-          clearInterval(intervalId)
-          return resolve(this.__token)
-        }
-        if (this.__error) {
-          clearInterval(intervalId)
-          return reject(this.__error)
-        }
-      }, 500)
-
-      //if we dont get anything after some time, we need to kill the previous interval
-      setTimeout(() => {
-        if (intervalId) {
-          clearInterval(intervalId)
-          return reject(
-            'no token available from apigee or apigee auth is taking too long'
-          )
-        }
-      }, 10 * 1000)
-    })
-  }
-
-  destroy() {
-    if (this.__timeoutId) {
-      clearTimeout(this.__timeoutId)
-      this.__timeoutId = null
-      return true
+    if (this.currentSeconds() > this.__refreshTokenExpireAt) {
+      return this.useUsernamePassword(this.__username, this.__password)
     }
-    return false
+
+    if (this.currentSeconds() > this.__accessTokenExpireAt) {
+      const { refresh_token } = this.__token
+      return this.useRefreshToken(refresh_token)
+    }
+
+    return Promise.resolve(this.__token)
   }
 }
