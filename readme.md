@@ -2,6 +2,10 @@
 
 Apigee-Auth retrieves [Apigee OAuth2 Access Tokens](https://docs.apigee.com/api-platform/system-administration/using-oauth2-security-apigee-edge-management-api) from a username/password. It automatically utilize refresh tokens when the current access token has expired so that we can always retrieve the next valid access token.
 
+# Install
+
+`$ npm install apigee-auth`
+
 # Basic Usage
 
 ```JavaScript
