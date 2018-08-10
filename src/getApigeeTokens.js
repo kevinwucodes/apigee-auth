@@ -3,6 +3,16 @@ const querystring = require('querystring')
 
 const { oauthTokenUrl } = require('../config')
 
+const OTPAuth = require('otpauth')
+
+const getMfaToken = secret =>
+  new OTPAuth.TOTP({
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    secret: OTPAuth.Secret.fromB32(secret)
+  }).generate()
+
 const options = {
   method: 'POST',
   headers: {
@@ -13,13 +23,14 @@ const options = {
   }
 }
 
-const getTokenFromUsername = (username, password) =>
+const getTokenFromUsername = (username, password, totpSecret) =>
   axios(oauthTokenUrl, {
     ...options,
     data: querystring.stringify({
       username,
       password,
-      grant_type: 'password'
+      grant_type: 'password',
+      ...(totpSecret && { mfa_token: getMfaToken(totpSecret) })
     })
   }).then(result => result.data)
 

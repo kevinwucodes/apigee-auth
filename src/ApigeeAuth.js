@@ -4,9 +4,10 @@ const {
 } = require('./getApigeeTokens')
 
 module.exports = class ApigeeAuth {
-  constructor(username, password) {
+  constructor(username, password, totpSecret) {
     this.__username = username
     this.__password = password
+    this.__totpSecret = totpSecret
 
     this.__token = null
 
@@ -20,8 +21,8 @@ module.exports = class ApigeeAuth {
     return Math.floor(new Date().getTime() / 1000)
   }
 
-  useUsernamePassword(username, password) {
-    return getTokenFromUsername(username, password).then(data =>
+  useUsernamePassword(username, password, totpSecret) {
+    return getTokenFromUsername(username, password, totpSecret).then(data =>
       this.setAccessToken(data)
     )
   }
@@ -45,7 +46,11 @@ module.exports = class ApigeeAuth {
 
   getToken() {
     if (this.currentSeconds() > this.__refreshTokenExpireAt) {
-      return this.useUsernamePassword(this.__username, this.__password)
+      return this.useUsernamePassword(
+        this.__username,
+        this.__password,
+        this.__totpSecret
+      )
     }
 
     if (this.currentSeconds() > this.__accessTokenExpireAt) {

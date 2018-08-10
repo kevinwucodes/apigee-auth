@@ -17,6 +17,18 @@ apigeeAuth.getToken().then(response => {
 })
 ```
 
+# 2FA/MFA tokens (optional)
+
+If you have two factor authentication enabled, you could pass in your [TOTP](https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm) secret as the 3rd parameter.
+
+```JavaScript
+const apigeeAuth = new ApigeeAuth('username', 'password', 'your-2fa-totp-secret')
+```
+
+**Please note that if you are using 2FA this way, you are no longer using two factor authentication because you may have compromised your 2FA secret by storing your 2FA secret outside your mobile device or mobile key.**
+
+This optional parameter is provided as convenience if you must require 2FA in your logins but still want to automate Apigee Management APIs in your environment. 
+
 # Reference
 
 `getToken()`
