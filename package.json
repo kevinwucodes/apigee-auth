@@ -1,6 +1,6 @@
 {
   "name": "apigee-auth",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Apigee-Auth retrieves Apigee OAuth2 Access Tokens and automatically utilize refresh tokens when the current access token has expired so that we can always retrieve the next valid access token.",
   "main": "index.js",
   "dependencies": {
